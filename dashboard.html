@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CyberHawks Online Banking – Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="dash-body">
+  <header class="bank-header">
+    <div class="bank-header-inner">
+      <div class="bank-brand">
+        <span class="bank-logo">CH</span>
+        <div class="bank-brand-text">
+          <div class="bank-name">CyberHawks Bank</div>
+          <div class="bank-sub">Online Banking Portal</div>
+        </div>
+      </div>
+
+      <nav class="bank-nav">
+        <span id="userDisplay" class="bank-user-pill"></span>
+        <button id="logoutBtn" class="btn small ghost">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="bank-main">
+    <aside class="bank-sidebar">
+      <button class="nav-btn active" id="overviewBtn">Accounts overview</button>
+      <button class="nav-btn" id="cardsBtn">Cards</button>
+      <button class="nav-btn" id="paymentsBtn">Payments history</button>
+      <button class="nav-btn danger" id="adminBtn">
+        Fraud &amp; Risk Console (admin)
+      </button>
+    </aside>
+
+    <section class="bank-content">
+      <div id="contentArea" class="content-inner">
+        <!-- Filled by dashboard.js -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <small>CyberHawks Online Banking – CTF lab only • Not a real financial institution</small>
+      <div class="footer-links">
+        <a href="https://linktr.ee/CyberHawksClub_GNITHYD" target="_blank" rel="noopener">CyberHawksClub</a>
+        <a href="https://www.linkedin.com/in/k-sai-nadh/" target="_blank" rel="noopener">MyLinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

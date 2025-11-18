@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>CyberHawks Online Banking – Open Account</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-body">
+  <main>
+    <h2 class="auth-title">CyberHawks Online Banking</h2>
+
+    <div class="auth-container" id="signupContainer">
+      <div class="form-container form-left">
+        <form id="signupForm">
+          <h1>Create Account</h1>
+          <p class="auth-tagline">Practice online banking in a safe CTF lab</p>
+
+          <div class="social-container">
+            <a href="#" class="social disabled"><i class="fab fa-google"></i></a>
+            <a href="#" class="social disabled"><i class="fab fa-apple"></i></a>
+            <a href="#" class="social disabled"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+          <span class="auth-small">Use fake details – this is a lab</span>
+
+          <input id="signup-name" type="text" placeholder="Full name" autocomplete="name" />
+          <input id="signup-username" type="text" placeholder="Preferred username" autocomplete="username" />
+          <input id="signup-password" type="password" placeholder="Choose a password" autocomplete="new-password" />
+          <button type="submit">Create account</button>
+
+          <div id="signupMsg" class="auth-status"></div>
+        </form>
+      </div>
+
+      <div class="overlay-container overlay-left-bank">
+        <div class="overlay-bank">
+          <div class="overlay-panel overlay-left">
+            <h1>Already have an account?</h1>
+            <p>Sign in to view your balances, cards and transfer history.</p>
+            <a href="login.html"><button class="ghost" type="button">Sign In</button></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="auth-footer">
+      <p>
+        Training only • Any data entered is fake and not persisted.
+      </p>
+    </footer>
+  </main>
+
+  <script src="signup.js"></script>
+</body>
+</html>
