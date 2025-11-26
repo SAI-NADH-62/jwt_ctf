@@ -1,5 +1,6 @@
 // api/_jwt.js
 const crypto = require("crypto");
+const config = require("./_config");
 
 function base64urlEncode(obj) {
   const json = typeof obj === "string" ? obj : JSON.stringify(obj);
@@ -29,25 +30,32 @@ function signHS256(data, secret) {
     .replace(/\//g, "_");
 }
 
+// OPTIMIZED: Single pass cookie parsing, no array mutations
 function parseCookies(header) {
+  if (!header) return {};
+
   const list = {};
-  if (!header) return list;
-  header.split(";").forEach((cookie) => {
-    const parts = cookie.split("=");
-    const key = parts.shift().trim();
-    const value = decodeURIComponent(parts.join("="));
+  const cookies = header.split(";");
+
+  for (let i = 0; i < cookies.length; i++) {
+    const eqIndex = cookies[i].indexOf("=");
+    if (eqIndex === -1) continue;
+
+    const key = cookies[i].substring(0, eqIndex).trim();
+    const value = decodeURIComponent(cookies[i].substring(eqIndex + 1));
     list[key] = value;
-  });
+  }
+
   return list;
 }
 
-const JWT_SECRET = "super-secret-cyberhawks-bank-key";
+const JWT_SECRET = config.JWT_SECRET;
 
 function createJwt(username) {
   const header = { alg: "HS256", typ: "JWT" };
   const payload = {
     sub: username,
-    role: "customer", // IMPORTANT: default role
+    role: config.ROLES.CUSTOMER, // IMPORTANT: default role
     iat: Math.floor(Date.now() / 1000),
   };
 
@@ -72,7 +80,7 @@ function verifyJwt(token) {
     headerJson = JSON.parse(base64urlDecode(headerB64));
     payloadJson = JSON.parse(base64urlDecode(payloadB64));
   } catch (e) {
-    throw new Error("Invalid token JSON");
+    throw new Error(`Invalid token JSON: ${e.message}`);
   }
 
   const alg = headerJson.alg;
@@ -94,6 +102,23 @@ function verifyJwt(token) {
   throw new Error("Unsupported alg");
 }
 
+// NEW: Shared cookie creation utility
+function createSessionCookie(token, maxAge = null) {
+  const parts = [
+    `session=${token}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    // "Secure",
+  ];
+
+  if (maxAge !== null) {
+    parts.push(`Max-Age=${maxAge}`);
+  }
+
+  return parts.join("; ");
+}
+
 module.exports = {
   base64urlEncode,
   base64urlDecode,
@@ -102,4 +127,5 @@ module.exports = {
   JWT_SECRET,
   createJwt,
   verifyJwt,
+  createSessionCookie,
 };

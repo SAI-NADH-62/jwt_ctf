@@ -1,19 +1,33 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CyberHawks Bank – JWT Bypass CTF</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CyberHawks Bank – JWT Bypass CTF</title>
 
-  <!-- New font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Poppins font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+
+<style>
+/* keep most styling in style.css; minimal overrides here */
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; min-height: 100vh; }
+main { flex: 1 0 auto; }
+.site-footer { flex-shrink: 0; }
+
+/* tighten hero/auth spacing when auth card removed */
+.hero { padding-top: 48px; padding-bottom: 48px; }
+.hero-inner { display: flex; gap: 32px; align-items: flex-start; }
+.hero-left { max-width: 720px; }
+
+/* ensure CTA buttons remain visible */
+.hero-cta { margin-top: 18px; display: flex; gap: 12px; }
+</style>
 </head>
 
 <body class="auth-body">
-
 <!-- HEADER -->
 <header class="site-header">
   <div class="container header-inner">
@@ -24,59 +38,79 @@
 
     <nav class="top-nav">
       <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#faq">FAQ</a>
       <a href="#rules">Rules</a>
       <img src="assets/logo.png" alt="CyberHawks Logo" class="nav-logo">
     </nav>
   </div>
 </header>
 
-<!-- LOGIN AREA -->
 <main>
-  <h2 class="auth-title">CyberHawks Online Banking</h2>
+  <div class="hero">
+    <div class="container hero-inner">
+      <div class="hero-left">
+        <h1>CyberHawks Online Banking</h1>
+        <p class="lead">Practice online banking in a safe, local CTF lab. Your goal: modify the JWT role to admin and retrieve the flag.</p>
 
-  <div class="auth-container">
-    <div class="form-container form-left">
-      <form id="loginForm">
-        <h1>Sign in</h1>
-        <p class="auth-tagline">Secure access to your CyberHawks club account</p>
-
-        <input id="login-username" type="text" placeholder="Customer ID / Username">
-        <input id="login-password" type="password" placeholder="Password">
-
-        <button type="submit">Sign in</button>
-
-        <div id="loginMsg" class="auth-status"></div>
-      </form>
-    </div>
-
-    <div class="overlay-container overlay-right-bank">
-      <div class="overlay-bank">
-        <div class="overlay-panel overlay-right">
-          <h1>New here?</h1>
-          <p>Create a practice account and try to hack the admin console.</p>
-          <a href="signup.html"><button class="ghost">Open account</button></a>
+        <div class="hero-cta">
+          <!-- follow user's requested text for links -->
+          <a class="btn" href="signin.html">Start challenge</a>
+          <a class="btn ghost" href="signup.html">Open practice account</a>
         </div>
+
+        <ul class="meta">
+          <li>5 challenges • Static + serverless API</li>
+          <li>Safe • Local</li>
+        </ul>
       </div>
+      <!-- you can add a right column here later if needed -->
     </div>
   </div>
 
+  <!-- FAQ -->
+  <section id="faq" class="section faq">
+    <div class="container">
+      <h2>FAQ</h2>
+      <details>
+        <summary>How do I get the flag?</summary>
+        <p>Locate the JWT stored in localStorage as <code>id_token</code>, decode the payload, modify the role to <code>admin</code>, re-encode & place back - then access the admin console. (This lab accepts unsigned demo tokens.)</p>
+      </details>
+      <details>
+        <summary>Is this safe?</summary>
+        <p>Yes — it's a local training lab and intentionally insecure for learning only. Don't reuse the pattern on real systems.</p>
+      </details>
+    </div>
+  </section>
+
   <!-- RULES -->
   <section id="rules" class="rules-box">
-    <h3>Rules</h3>
-    <ol>
-      <li>Use only locally or inside CTF scope.</li>
-      <li>No real banking details – everything here is fake.</li>
-      <li>Goal: Modify the JWT to become ADMIN and get the flag.</li>
-    </ol>
+    <div class="container">
+      <h3>Rules</h3>
+      <ol>
+        <li>Use only locally or inside CTF scope.</li>
+        <li>No real banking details - everything here is fake.</li>
+        <li>Goal: Modify the JWT to become <strong>ADMIN</strong> and get the flag.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <section id="disclaimer" class="section disclaimer">
+    <div class="container">
+      <h2>Disclaimer</h2>
+      <p>
+        This environment is for ethical security testing and education only - unauthorized use of these techniques on real systems is prohibited.
+      </p>
+      <p><strong>Happy Hacking 👻</strong></p>
+    </div>
   </section>
 </main>
 
 <!-- FOOTER -->
 <footer class="site-footer">
   <div class="container footer-inner">
-    <div class="footer-left">
-      Made for learning • Do not reuse in production
-    </div>
+    <div class="footer-left">Made for learning • Do not reuse in production</div>
     <div class="footer-links">
       <a href="https://linktr.ee/CyberHawksClub_GNITHYD" target="_blank">CyberHawksClub</a>
       <a href="https://www.linkedin.com/in/k-sai-nadh/" target="_blank">MyLinkedin</a>
@@ -84,6 +118,5 @@
   </div>
 </footer>
 
-<script src="login.js"></script>
 </body>
 </html>

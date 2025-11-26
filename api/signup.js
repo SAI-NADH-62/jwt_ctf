@@ -1,41 +1,34 @@
 // api/signup.js
-const { createJwt } = require("./_jwt");
+const { createJwt, createSessionCookie } = require("./_jwt");
+const { sendError, sendSuccess } = require("./_response");
+const config = require("./_config");
 
 module.exports = (req, res) => {
   if (req.method !== "POST") {
-    res.statusCode = 405;
-    return res.json({ message: "Method not allowed" });
+    return sendError(res, 405, "Method not allowed");
   }
 
   const { name, username, password } = req.body || {};
 
   if (!name || !username || !password) {
-    res.statusCode = 400;
-    return res.json({ message: "All fields are required" });
+    return sendError(res, 400, "All fields are required");
   }
 
-  const uname = String(username).trim();
+  // OPTIMIZED: Single toLowerCase call
+  const uname = String(username).trim().toLowerCase();
 
   // Block direct admin signup
-  if (["admin", "administrator", "ceo"].includes(uname.toLowerCase())) {
-    res.statusCode = 403;
-    return res.json({
-      message:
-        "Admin accounts cannot be created via self-service. Create a normal customer and try exploring the JWT.",
-    });
+  if (config.BLOCKED_USERNAMES.includes(uname)) {
+    return sendError(
+      res,
+      403,
+      "Admin accounts cannot be created via self-service. Create a normal customer and try exploring the JWT."
+    );
   }
 
   const token = createJwt(uname);
 
-  const cookie = [
-    `session=${token}`,
-    "Path=/",
-    "HttpOnly",
-    "SameSite=Lax",
-    // "Secure", // enable when using HTTPS
-  ].join("; ");
-
-  res.setHeader("Set-Cookie", cookie);
-  res.statusCode = 200;
-  return res.json({ message: "Account created", username: uname });
+  // Use shared cookie utility
+  res.setHeader("Set-Cookie", createSessionCookie(token));
+  return sendSuccess(res, { message: "Account created", username: uname });
 };

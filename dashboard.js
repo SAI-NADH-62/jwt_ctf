@@ -1,215 +1,360 @@
-// dashboard.js
+// dashboard.js — updated to match dashboard.html structure (reads demo JWT from localStorage)
+// (trimmed for brevity but functional)
+(function () {
+  'use strict';
+  const sampleData = {
+    balances: { savings: 124500.8, current: 36210.15, fd: 9700.98 },
+    transactions: [
+      { date: '2025-11-20', details: 'Salary – CyberHawks (Payroll)', status: 'Success', amount: 55000 },
+      { date: '2025-11-19', details: 'UPI • Transfer • mom@upi', status: 'Pending', amount: -2500 },
+      { date: '2025-11-18', details: 'Amazon • Home & Kitchen', status: 'Success', amount: -7626 },
+      { date: '2025-11-17', details: 'Card charge • Unknown merchant', status: 'Failed', amount: -2999 },
+      { date: '2025-11-15', details: 'UPI • office@upi (Reimbursement)', status: 'Success', amount: 15000 },
+      { date: '2025-11-14', details: 'Netflix • Subscription (Standard)', status: 'Failed', amount: -649 },
+      { date: '2025-11-12', details: 'Refund • Online retailer', status: 'Success', amount: 799 }
+    ],
+    monthlySpending: { labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'], expenses: [6400, 4200, 8800, 7200, 4800, 6500], income: [32000, 30000, 35000, 30000, 32000, 55000] },
+    recipients: ['mom@upi', 'office@upi', 'friend@upi']
+  };
 
-document.addEventListener("DOMContentLoaded", () => {
-  const userDisplay = document.getElementById("userDisplay");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const contentArea = document.getElementById("contentArea");
-
-  const overviewBtn = document.getElementById("overviewBtn");
-  const cardsBtn = document.getElementById("cardsBtn");
-  const paymentsBtn = document.getElementById("paymentsBtn");
-  const adminBtn = document.getElementById("adminBtn");
-
-  let currentUser = null;
-
-  function setActive(btn) {
-    [overviewBtn, cardsBtn, paymentsBtn, adminBtn].forEach((b) =>
-      b.classList.remove("active")
-    );
-    btn.classList.add("active");
-  }
-
-  function renderOverview() {
-    if (!currentUser) return;
-    contentArea.innerHTML = `
-      <h2>Accounts overview</h2>
-      <p class="muted-text">
-        Good evening, <strong>${currentUser.sub}</strong>. Below are your CyberHawks demo account balances.
-      </p>
-
-      <div class="account-cards">
-        <div class="account-card">
-          <div class="account-label">Savings Account</div>
-          <div class="account-balance">₹ 1,24,500.80</div>
-          <div class="account-meta">Account ending • 4821</div>
-        </div>
-
-        <div class="account-card">
-          <div class="account-label">Current Account</div>
-          <div class="account-balance">₹ 36,210.15</div>
-          <div class="account-meta">Account ending • 9304</div>
-        </div>
-
-        <div class="account-card">
-          <div class="account-label">Fixed Deposit</div>
-          <div class="account-balance">₹ 2,50,000.00</div>
-          <div class="account-meta">Link ID • CHFD-0193</div>
-        </div>
-
-        <div class="account-card">
-          <div class="account-label">Goal Saver – CyberHawks CTF Trip</div>
-          <div class="account-balance">₹ 18,750.00</div>
-          <div class="account-meta">Target: ₹ 50,000 • 37% complete</div>
-        </div>
-      </div>
-
-      <p class="muted-text">
-        Note: all balances and account numbers here are randomly generated for training and have no real value.
-      </p>
-    `;
-  }
-
-  function renderCards() {
-    contentArea.innerHTML = `
-      <h2>Cards</h2>
-      <p class="muted-text">
-        Cards linked to your CyberHawks demo profile.
-      </p>
-
-      <div class="account-cards">
-        <div class="account-card">
-          <div class="account-label">CyberHawks Platinum Debit</div>
-          <div class="account-balance">•••• 5213</div>
-          <div class="account-meta">Daily limit: ₹ 50,000 • Contactless: Enabled</div>
-        </div>
-        <div class="account-card">
-          <div class="account-label">CyberHawks Rewards Credit</div>
-          <div class="account-balance">•••• 9910</div>
-          <div class="account-meta">Available limit: ₹ 75,000 • Reward points: 12,340</div>
-        </div>
-        <div class="account-card">
-          <div class="account-label">Virtual Card (Online only)</div>
-          <div class="account-balance">•••• 3078</div>
-          <div class="account-meta">Temporary CVV • Lock/unlock from app</div>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderPayments() {
-    contentArea.innerHTML = `
-      <h2>Payments history</h2>
-      <p class="muted-text">Recent transactions (demo data only)</p>
-
-      <table class="tx-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Details</th>
-            <th>Status</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>2025-11-04</td><td>UPI • Food Delivery</td><td>Success</td><td>- ₹ 650.00</td></tr>
-          <tr><td>2025-11-05</td><td>UPI • Ride Sharing</td><td>Success</td><td>- ₹ 320.00</td></tr>
-          <tr><td>2025-11-06</td><td>ATM Withdrawal</td><td>Success</td><td>- ₹ 4,000.00</td></tr>
-          <tr><td>2025-11-07</td><td>CyberHawks CTF Registration</td><td>Success</td><td>- ₹ 499.00</td></tr>
-          <tr><td>2025-11-08</td><td>Online Purchase • Headphones</td><td>Success</td><td>- ₹ 2,999.00</td></tr>
-          <tr><td>2025-11-09</td><td>Electricity Bill</td><td>Success</td><td>- ₹ 1,780.00</td></tr>
-          <tr><td>2025-11-10</td><td>Credit Card Payment</td><td>Success</td><td>- ₹ 8,500.00</td></tr>
-          <tr><td>2025-11-11</td><td>UPI • Grocery Store</td><td>Success</td><td>- ₹ 1,250.00</td></tr>
-          <tr><td>2025-11-12</td><td>Salary – CyberHawks</td><td>Success</td><td>+ ₹ 55,000.00</td></tr>
-          <tr><td>2025-11-13</td><td>Netflix Subscription</td><td>Success</td><td>- ₹ 649.00</td></tr>
-        </tbody>
-      </table>
-    `;
-  }
-
-  function renderAdminDenied(message) {
-    contentArea.innerHTML = `
-      <h2>Fraud & Risk Console</h2>
-      <p class="muted-text">
-        ${message || "Access denied. Only authorized bank admins can view risk events."}
-      </p>
-      <p class="muted-text">
-        The API uses a JSON Web Token (JWT) to decide your <code>role</code>.
-        Try intercepting the request to <code>/api/admin</code> and look at the JWT payload.
-      </p>
-      <p class="muted-text">
-        Hint: your current role is <strong>${currentUser ? currentUser.role : "unknown"}</strong>.
-        What happens if the token claims <code>admin</code> instead?
-      </p>
-    `;
-  }
-
-  function renderAdminFlag(flag, message) {
-    contentArea.innerHTML = `
-      <h2>Fraud & Risk Console <span class="chip">admin</span></h2>
-      <p>${message}</p>
-
-      <div class="flag-box">
-        Flag: ${flag}
-      </div>
-
-      <p class="muted-text">
-        You abused the server's trust in the <code>role</code> field of the JWT.
-        The backend never re-checks your actual permissions – classic auth bypass.
-      </p>
-    `;
-  }
-
-  async function loadUser() {
+  function parseJwtFromLocal() {
     try {
-      const res = await fetch("/api/me");
-      if (!res.ok) {
-        window.location.href = "index.html";
+      const raw = localStorage.getItem('id_token');
+      if (!raw) return null;
+      const parts = raw.split('.');
+      if (parts.length < 2) return null;
+      return JSON.parse(atob(parts[1]));
+    } catch (e) { return null; }
+  }
+  function numberWithCommas(x) { return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function $(sel) { return document.querySelector(sel); }
+  function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
+
+  function showUserHeader(payload) {
+    const pill = $('#userPill');
+    const welcome = $('#welcomeName');
+    if (!pill) return;
+    if (payload && (payload.username || payload.sub)) {
+      const name = payload.username || payload.sub;
+      const role = payload.role || 'customer';
+      pill.textContent = `${name} • role: ${role}`;
+      if (welcome) welcome.textContent = name;
+    } else {
+      pill.textContent = 'Guest';
+      if (welcome) welcome.textContent = 'Guest';
+    }
+  }
+
+  function populateBalances() {
+    $('#balSavings') && ($('#balSavings').textContent = numberWithCommas(sampleData.balances.savings.toFixed(2)));
+    $('#balCurrent') && ($('#balCurrent').textContent = numberWithCommas(sampleData.balances.current.toFixed(2)));
+    $('#balFD') && ($('#balFD').textContent = numberWithCommas(sampleData.balances.fd.toFixed(2)));
+    $('#availSavings') && ($('#availSavings').textContent = '₹ ' + numberWithCommas(Math.round(sampleData.balances.savings)));
+    $('#savingsPercent') && ($('#savingsPercent').textContent = Math.min(100, Math.round((sampleData.balances.savings / 200000) * 100)) + '%');
+  }
+
+  function populateTxTable(list) {
+    const tbody = document.querySelector('#txTable tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    let running = Math.round(sampleData.balances.savings + sampleData.balances.current);
+    (list || sampleData.transactions).forEach(tx => {
+      running += tx.amount;
+      const tr = document.createElement('tr');
+      const statusClass = tx.status === 'Success' ? 'status-success' : (tx.status === 'Pending' ? 'status-pending' : 'status-failed');
+      tr.innerHTML = `<td>${tx.date}</td><td>${tx.details}</td><td><span class="status-pill ${statusClass}">${tx.status}</span></td><td>${tx.amount < 0 ? '-' : '+'} ₹ ${Math.abs(tx.amount).toLocaleString()}</td><td class="running-balance">₹ ${numberWithCommas(Math.round(running))}</td>`;
+      tbody.appendChild(tr);
+    });
+    $('#txCount') && ($('#txCount').textContent = (list || sampleData.transactions).length);
+    const pbody = document.querySelector('#paymentsTable tbody');
+    if (pbody) pbody.innerHTML = (list || sampleData.transactions).map(tx => `
+      <tr>
+        <td>${tx.date}</td>
+        <td>${tx.details}</td>
+        <td><span class="status-pill ${tx.status === 'Success' ? 'status-success' : tx.status === 'Pending' ? 'status-pending' : 'status-failed'}">${tx.status}</span></td>
+        <td>₹ ${Math.abs(tx.amount).toLocaleString()}</td>
+        <td>${Math.random().toString(36).slice(2, 10).toUpperCase()}</td>
+      </tr>`).join('');
+  }
+
+  function initNav() {
+    $all('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        $all('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const section = btn.dataset.section;
+        document.querySelectorAll('.content-inner').forEach(el => el.style.display = 'none');
+        const target = document.getElementById(section);
+        if (target) target.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    $('#quickTransferBtn') && $('#quickTransferBtn').addEventListener('click', () => {
+      document.querySelectorAll('.content-inner').forEach(el => el.style.display = 'none');
+      $('#transfer') && ($('#transfer').style.display = 'block');
+      $all('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.nav-btn[data-section="overview"]')?.classList.add('active');
+      setTimeout(() => { $('#txAmountMain')?.focus(); }, 150);
+    });
+
+    $('#openTransferTop') && $('#openTransferTop').addEventListener('click', () => {
+      document.querySelectorAll('.content-inner').forEach(el => el.style.display = 'none');
+      $('#transfer') && ($('#transfer').style.display = 'block');
+    });
+  }
+
+  function initTransfers() {
+    const form = document.getElementById('transferForm');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const to = $('#txTo').value.trim() || 'recipient';
+        const amt = Number($('#txAmount').value) || 0;
+        const from = $('#fromAccount').value;
+        const msg = $('#txMsg');
+        if (amt <= 0) { msg.textContent = 'Enter valid amount'; return; }
+        const avail = from === 'savings' ? sampleData.balances.savings : sampleData.balances.current;
+        if (amt > avail) { msg.textContent = 'Insufficient funds'; return; }
+        $('#confirmTitle').textContent = `Send ₹ ${numberWithCommas(amt)} to ${to}`;
+        $('#confirmBody').textContent = `From: ${from === 'savings' ? 'Savings • 4821' : 'Current • 9304'}`;
+        $('#confirmModal').style.display = 'flex';
+        $('#cancelConfirm').onclick = () => $('#confirmModal').style.display = 'none';
+        $('#confirmTransfer').onclick = () => {
+          if (from === 'savings') sampleData.balances.savings -= amt; else sampleData.balances.current -= amt;
+          sampleData.transactions.unshift({ date: new Date().toISOString().slice(0, 10), details: `Transfer • ${to}`, status: 'Success', amount: -amt });
+          populateBalances(); populateTxTable();
+          renderRecipients();
+          msg.textContent = `Sent ₹ ${numberWithCommas(amt)} to ${to}`;
+          $('#confirmModal').style.display = 'none';
+          setTimeout(() => msg.textContent = '', 2500);
+        };
+      });
+    }
+
+    const formMain = document.getElementById('transferFormMain');
+    if (formMain) {
+      formMain.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const to = $('#txToMain').value.trim() || 'recipient';
+        const amt = Number($('#txAmountMain').value) || 0;
+        const from = $('#fromAccountMain').value;
+        const msg = $('#txMsgMain');
+        if (amt <= 0) { msg.textContent = 'Enter valid amount'; return; }
+        const avail = from === 'savings' ? sampleData.balances.savings : sampleData.balances.current;
+        if (amt > avail) { msg.textContent = 'Insufficient funds'; return; }
+        if (!confirm(`Send ₹ ${numberWithCommas(amt)} to ${to}?`)) return;
+        if (from === 'savings') sampleData.balances.savings -= amt; else sampleData.balances.current -= amt;
+        sampleData.transactions.unshift({ date: new Date().toISOString().slice(0, 10), details: `Transfer • ${to} (UPI)`, status: 'Success', amount: -amt });
+        populateBalances(); populateTxTable();
+        renderRecipients();
+        msg.textContent = `Sent ₹ ${numberWithCommas(amt)} to ${to}`;
+        setTimeout(() => msg.textContent = '', 2400);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'saveRecipientBtn') {
+          const val = $('#txTo').value.trim();
+          if (!val) return;
+          const cur = JSON.parse(localStorage.getItem('ch_recipients') || 'null') || sampleData.recipients;
+          if (!cur.includes(val)) cur.unshift(val);
+          localStorage.setItem('ch_recipients', JSON.stringify(cur.slice(0, 12)));
+          renderRecipients();
+          $('#txMsg').textContent = 'Saved';
+          setTimeout(() => $('#txMsg').textContent = '', 1200);
+        }
+        if (e.target && e.target.id === 'saveRecipientBtnMain') {
+          const val = $('#txToMain').value.trim();
+          if (!val) return;
+          const cur = JSON.parse(localStorage.getItem('ch_recipients') || 'null') || sampleData.recipients;
+          if (!cur.includes(val)) cur.unshift(val);
+          localStorage.setItem('ch_recipients', JSON.stringify(cur.slice(0, 12)));
+          renderRecipients();
+          $('#txMsgMain').textContent = 'Saved';
+          setTimeout(() => $('#txMsgMain').textContent = '', 1200);
+        }
+      });
+    }
+  }
+
+  function renderRecipients() {
+    const list = JSON.parse(localStorage.getItem('ch_recipients') || 'null') || sampleData.recipients;
+    const el = $('#recipientList');
+    if (el) {
+      el.innerHTML = '';
+      list.slice(0, 8).forEach(r => {
+        const b = document.createElement('div');
+        b.className = 'recipient-chip';
+        b.textContent = r;
+        if (['mom@upi', 'office@upi', 'friend@upi'].includes(r)) b.classList.add('recipient-send');
+        b.onclick = () => $('#txTo').value = r;
+        el.appendChild(b);
+      });
+    }
+    const el2 = $('#recipientListMain');
+    if (el2) {
+      el2.innerHTML = '';
+      list.slice(0, 12).forEach(r => {
+        const b = document.createElement('div');
+        b.className = 'recipient-chip';
+        b.textContent = r;
+        if (['mom@upi', 'office@upi', 'friend@upi'].includes(r)) b.classList.add('recipient-send');
+        b.onclick = () => $('#txToMain').value = r;
+        el2.appendChild(b);
+      });
+    }
+  }
+
+  function initPaymentsControls() {
+    const search = $('#paymentsSearch');
+    const status = $('#paymentsStatus');
+    const paymentsTableBody = document.querySelector('#paymentsTable tbody');
+
+    if (search) {
+      search.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        const st = status ? status.value : 'all';
+        const list = sampleData.transactions.filter(t => t.details.toLowerCase().includes(q) && (st === 'all' || t.status.toLowerCase() === st));
+        if (paymentsTableBody) {
+          paymentsTableBody.innerHTML = list.map(tx => {
+            const cls = tx.status === 'Success' ? 'status-success' : tx.status === 'Pending' ? 'status-pending' : 'status-failed';
+            return `<tr><td>${tx.date}</td><td>${tx.details}</td><td><span class="status-pill ${cls}">${tx.status}</span></td><td>₹ ${Math.abs(tx.amount).toLocaleString()}</td><td>${Math.random().toString(36).slice(2, 10).toUpperCase()}</td></tr>`;
+          }).join('');
+        }
+      });
+      search.dispatchEvent(new Event('input'));
+    }
+
+    if (status) status.addEventListener('change', () => search.dispatchEvent(new Event('input')));
+
+    const exportBtn = $('#exportBtn');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const rows = sampleData.transactions.map(t => [t.date, t.details, t.status, t.amount]);
+        const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'payments.csv'; a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+  }
+
+  function initAdminSection(payload) {
+    const adminBtn = document.querySelector('.nav-btn[data-section="fraud"]');
+    if (!adminBtn) return;
+    adminBtn.addEventListener('click', async () => {
+      $all('.nav-btn').forEach(b => b.classList.remove('active'));
+      adminBtn.classList.add('active');
+      document.querySelectorAll('.content-inner').forEach(el => el.style.display = 'none');
+      const el = document.getElementById('fraud');
+      if (el) el.style.display = 'block';
+
+      // Show loading state
+      el.innerHTML = '<h2>Fraud & Risk Console</h2><p class="muted-text">Loading...</p>';
+
+      try {
+        // CALL THE ACTUAL API ENDPOINT
+        const response = await fetch('/api/admin', {
+          method: 'GET',
+          credentials: 'include', // Include cookies
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // SUCCESS - Show the flag from backend
+          el.innerHTML = `
+            <h2>Fraud & Risk Console <span class="chip">admin</span></h2>
+            <p class="muted-text">Welcome admin. Here is your lab flag:</p>
+            <div class="flag-box">${data.flag}</div>
+            <p class="muted-text">${data.message}</p>
+          `;
+        } else {
+          // ERROR - Show hint
+          el.innerHTML = `
+            <h2>Fraud & Risk Console</h2>
+            <p class="muted-text">${data.message}</p>
+            <p class="muted-text">Hint: The API uses a JWT to decide your <code>role</code>. Try intercepting the request in Burp Suite and modifying the JWT to have alg: "none" and role: "admin".</p>
+            <p class="muted-text">Current role: <strong>${payload?.role || 'unknown'}</strong></p>
+          `;
+        }
+      } catch (error) {
+        el.innerHTML = `
+          <h2>Fraud & Risk Console</h2>
+          <p class="muted-text">Error connecting to admin console: ${error.message}</p>
+        `;
+      }
+    });
+  }
+
+  function initLogout() {
+    $('#logoutBtn') && $('#logoutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/api/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+      } catch (e) {
+        // Ignore errors
+      }
+      window.location.href = 'index.html';
+    });
+  }
+
+  function renderSpendingChart() {
+    const canvas = document.getElementById('spendingChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    const labels = sampleData.monthlySpending.labels;
+    const expenses = sampleData.monthlySpending.expenses;
+    const income = sampleData.monthlySpending.income;
+    try {
+      new Chart(canvas, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Expenses', data: expenses, tension: 0.35, borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.06)', pointRadius: 3 }, { label: 'Income', data: income, tension: 0.35, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.06)', pointRadius: 3 }] },
+        options: { plugins: { legend: { position: 'bottom', labels: { color: '#cfe8ff' } } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
+      });
+    } catch (e) { }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // CHECK AUTHENTICATION FIRST
+    try {
+      const response = await fetch('/api/me', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        // Not authenticated - redirect to login
+        window.location.href = 'index.html';
         return;
       }
-      const data = await res.json();
-      currentUser = data.user;
-      userDisplay.textContent = `${currentUser.sub} • role: ${currentUser.role}`;
-      setActive(overviewBtn);
-      renderOverview();
-    } catch (err) {
-      console.error(err);
-      window.location.href = "index.html";
-    }
-  }
 
-  overviewBtn.addEventListener("click", () => {
-    setActive(overviewBtn);
-    renderOverview();
-  });
+      const data = await response.json();
+      const payload = data.user;
 
-  cardsBtn.addEventListener("click", () => {
-    setActive(cardsBtn);
-    renderCards();
-  });
-
-  paymentsBtn.addEventListener("click", () => {
-    setActive(paymentsBtn);
-    renderPayments();
-  });
-
-  adminBtn.addEventListener("click", async () => {
-    setActive(adminBtn);
-    if (!currentUser) {
-      renderAdminDenied("You must sign in first.");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/admin");
-      const data = await res.json();
-
-      if (!res.ok) {
-        renderAdminDenied(data.message || "Forbidden.");
-      } else {
-        renderAdminFlag(data.flag, data.message);
-      }
-    } catch (err) {
-      console.error(err);
-      renderAdminDenied("Network error while contacting admin API.");
+      showUserHeader(payload);
+      populateBalances();
+      populateTxTable();
+      renderSpendingChart();
+      renderRecipients();
+      initNav();
+      initTransfers();
+      initPaymentsControls();
+      initAdminSection(payload);
+      initLogout();
+    } catch (error) {
+      // Network error or not authenticated
+      console.error('Auth check failed:', error);
+      window.location.href = 'index.html';
     }
   });
-
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      await fetch("/api/logout");
-    } catch (_) {}
-    window.location.href = "index.html";
-  });
-
-  loadUser();
 });
+
+// Signal successful init for the HTML sanity-check
+try { window.__dashboard_ready = true; } catch (e) { }

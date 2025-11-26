@@ -1,20 +1,23 @@
 // api/me.js
 const { parseCookies, verifyJwt } = require("./_jwt");
+const { sendError, sendSuccess } = require("./_response");
 
 module.exports = (req, res) => {
+  if (req.method !== "GET") {
+    return sendError(res, 405, "Method not allowed");
+  }
+
   try {
     const cookies = parseCookies(req.headers.cookie || "");
     const token = cookies.session;
+
     if (!token) {
-      res.statusCode = 401;
-      return res.json({ message: "No session" });
+      return sendError(res, 401, "No session");
     }
 
     const payload = verifyJwt(token);
-    res.statusCode = 200;
-    return res.json({ user: payload });
+    return sendSuccess(res, { user: payload });
   } catch (e) {
-    res.statusCode = 401;
-    return res.json({ message: "Invalid or expired session" });
+    return sendError(res, 401, "Invalid or expired session");
   }
 };

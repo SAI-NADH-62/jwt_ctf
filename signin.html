@@ -3,10 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Open account – CyberHawks Bank</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>CyberHawks Bank – JWT Bypass CTF</title>
+
+  <!-- New font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
+
 <body class="auth-body">
+
+<!-- HEADER -->
 <header class="site-header">
   <div class="container header-inner">
     <div class="brand">
@@ -15,37 +23,37 @@
     </div>
 
     <nav class="top-nav">
-      <a href="index.html">Home</a>
-      <a href="index.html#rules">Rules</a>
+      <a href="#about">About</a>
+      <a href="#rules">Rules</a>
       <img src="assets/logo.png" alt="CyberHawks Logo" class="nav-logo">
     </nav>
   </div>
 </header>
 
+<!-- LOGIN AREA -->
 <main>
-  <h2 class="bank-title">CREATE YOUR CYBERHAWKS ACCOUNT</h2>
-<div class="auth-container">
+  <h2 class="bank-title">CYBERHAWKS ONLINE BANKING</h2>
+  <div class="auth-container">
     <div class="form-container form-left">
-      <form id="signupForm">
-        <h1>Create Account</h1>
-        <p class="auth-tagline">Open your CyberHawks training account securely</p>
+      <form id="loginForm">
+        <h1>Sign in</h1>
+        <p class="auth-tagline">Secure access to your CyberHawks club account</p>
 
+        <input id="login-username" type="text" placeholder="Customer ID / Username">
+        <input id="login-password" type="password" placeholder="Password">
 
-        <input id="signup-name" type="text" placeholder="Full name" autocomplete="name" />
-        <input id="signup-username" type="text" placeholder="Preferred username" autocomplete="username" />
-        <input id="signup-password" type="password" placeholder="Choose a password" autocomplete="new-password" />
-        <button type="submit">Create account</button>
+        <button type="submit">Sign in</button>
 
-        <div id="signupMsg" class="auth-status"></div>
+        <div id="loginMsg" class="auth-status"></div>
       </form>
     </div>
 
     <div class="overlay-container overlay-right-bank">
       <div class="overlay-bank">
         <div class="overlay-panel overlay-right">
-          <h1>Already have an account?</h1>
-          <p>Sign in to view your balances and the admin console.</p>
-          <a href="signin.html"><button class="ghost">Sign In</button></a>
+          <h1>New here?</h1>
+          <p>Create a practice account and try to hack the admin console.</p>
+          <a href="signup.html"><button class="ghost">Open account</button></a>
         </div>
       </div>
     </div>
@@ -62,6 +70,7 @@
   </section>
 </main>
 
+<!-- FOOTER -->
 <footer class="site-footer">
   <div class="container footer-inner">
     <div class="footer-left">
@@ -74,6 +83,6 @@
   </div>
 </footer>
 
-<script src="signup.js"></script>
+<script src="login.js"></script>
 </body>
 </html>

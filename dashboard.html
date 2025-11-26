@@ -2,55 +2,564 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>CyberHawks Online Banking – Dashboard</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CyberHawks Bank - Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="dash-body">
-  <header class="bank-header">
-    <div class="bank-header-inner">
-      <div class="bank-brand">
-        <span class="bank-logo">CH</span>
-        <div class="bank-brand-text">
-          <div class="bank-name">CyberHawks Bank</div>
-          <div class="bank-sub">Online Banking Portal</div>
+
+<!-- HEADER -->
+<header class="bank-header" role="banner">
+  <div class="bank-header-inner container">
+    <div class="bank-brand">
+      <img src="assets/logo.png" alt="CyberHawks Logo" class="nav-logo">
+      <div class="brand-text">
+        <div class="bank-name">CyberHawks Bank</div>
+        <div class="bank-sub">Online Banking Portal</div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div id="userPill" class="bank-user-pill">Guest</div>
+      <button id="logoutBtn" class="btn" type="button">Logout</button>
+    </div>
+  </div>
+</header>
+
+
+  <!-- MAIN -->
+  <main class="bank-main container" role="main">
+
+    <!-- SIDEBAR -->
+    <aside class="bank-sidebar" role="navigation" aria-label="Main navigation">
+      <nav>
+        <button class="nav-btn active" data-section="overview" type="button">Accounts overview</button>
+        <button class="nav-btn" data-section="cards" type="button">Cards</button>
+        <button class="nav-btn" data-section="payments" type="button">Payments history</button>
+        <button class="nav-btn" data-section="fraud" type="button">Fraud & Risk Console (admin)</button>
+      </nav>
+
+      <hr class="sidebar-sep" />
+
+      <div class="quick-actions-title">Quick actions</div>
+      <button id="quickTransferBtn" class="nav-btn quick-action" type="button">Transfer</button>
+    </aside>
+
+    <!-- CONTENT -->
+    <section class="bank-content" id="contentArea">
+
+      <!-- OVERVIEW -->
+      <div id="overview" class="content-inner">
+        <div class="overview-header">
+          <div>
+            <h1>Accounts overview</h1>
+            <p class="muted-text">Good evening, <span id="welcomeName">Guest</span>. Below are your balances and recent activity.</p>
+          </div>
+          <div class="overview-actions">
+            <button class="btn ghost" type="button">Statements</button>
+            <button class="btn" type="button" id="openTransferTop">New transfer</button>
+          </div>
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div class="account-summary-grid">
+          <div class="summary-card">
+            <div class="summary-top">
+              <div>
+                <div class="summary-title">Savings</div>
+                <div class="summary-sub muted-small">Account • ending 4821</div>
+              </div>
+              <div class="summary-amount">₹ <span id="balSavings">0.00</span></div>
+            </div>
+            <div class="summary-bottom">
+              <div class="muted-small">Available balance</div>
+              <div class="muted-small">Goal: Emergency • Used: <strong id="savingsPercent">62%</strong></div>
+            </div>
+            <div class="summary-actions">
+              <button class="btn ghost small" id="downloadStmtBtnOverview">Download statement</button>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-top">
+              <div>
+                <div class="summary-title">Current</div>
+                <div class="summary-sub muted-small">Account • ending 9304</div>
+              </div>
+              <div class="summary-amount">₹ <span id="balCurrent">0.00</span></div>
+            </div>
+            <div class="summary-bottom">
+              <button class="btn ghost small" type="button">Download statement</button>
+              <div class="muted-small">IFSC: CHBK0001234</div>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-top">
+              <div>
+                <div class="summary-title">Fixed deposit</div>
+                <div class="summary-sub muted-small">Link ID • CHFD-0193</div>
+              </div>
+              <div class="summary-amount">₹ <span id="balFD">0.00</span></div>
+            </div>
+            <div class="summary-bottom">
+              <div class="muted-small">Matures: 2026-02-14 • Rate: 6.50% p.a.</div>
+              <button class="btn ghost small" type="button" id="breakFdBtn">Request closure</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRANSFER + SPENDING -->
+        <div class="overview-row">
+          <aside class="transfer-panel card" aria-labelledby="transferTitle">
+            <h3 id="transferTitle">Quick transfer</h3>
+            <p class="muted-text small">Send money instantly. This demo stores recipients locally and simulates balance updates.</p>
+
+            <form id="transferForm" class="transfer-form" autocomplete="off">
+              <div class="row">
+                <select id="fromAccount" aria-label="From account">
+                  <option value="savings">Savings • 4821</option>
+                  <option value="current">Current • 9304</option>
+                </select>
+                <input id="txAmount" name="amount" type="number" min="1" placeholder="Amount (₹)" aria-label="Amount" />
+              </div>
+
+              <input id="txTo" name="to" placeholder="Beneficiary (Name / UPI ID)" aria-label="Beneficiary" />
+              <div class="recipient-list" id="recipientList" aria-hidden="false"></div>
+
+              <div class="row">
+                <input id="note" placeholder="Optional note" aria-label="Note" />
+                <button type="button" id="saveRecipientBtn" class="btn ghost">Save</button>
+              </div>
+
+              <div class="row actions">
+                <button type="submit" class="btn">Send</button>
+                <button type="button" class="btn ghost" id="scheduleBtn">Schedule</button>
+                <div id="txMsg" class="transfer-msg" aria-live="polite"></div>
+              </div>
+            </form>
+
+            <div class="muted-small" style="margin-top:10px;">Recent recipients — tap to autofill</div>
+          </aside>
+
+          <div class="spending-card card" aria-hidden="false">
+            <div class="spending-header">
+              <h3>Spending (last 6 months)</h3>
+              <div class="muted-small">Summary</div>
+            </div>
+            <canvas id="spendingChart" role="img" aria-label="Spending chart"></canvas>
+
+            <div class="spending-meta">
+              <div>Total out: ₹ <span id="totalOut">0</span></div>
+              <div>Total in: ₹ <span id="totalIn">0</span></div>
+              <div>Available (Savings): <strong id="availSavings">₹ 0</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECENT TRANSACTIONS -->
+        <section class="recent-transactions card" aria-labelledby="recentTxTitle">
+          <h3 id="recentTxTitle">Recent transactions</h3>
+
+          <div class="tx-controls">
+            <input id="txSearch" placeholder="Search transactions" aria-label="Search transactions" />
+            <select id="txFilter" aria-label="Filter transactions">
+              <option value="all">All</option>
+              <option value="in">Credit</option>
+              <option value="out">Debit</option>
+            </select>
+            <div class="muted-small meta-right">Showing <span id="txCount">0</span> records</div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="tx-table" id="txTable" aria-live="polite">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Details</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th>Running</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- CARDS -->
+      <div id="cards" class="content-inner" style="display:none">
+        <div class="section-head">
+          <h2>Cards</h2>
+          <p class="muted-text">Manage physical and virtual cards — lock, view limits, and generate temporary CVV.</p>
+        </div>
+
+        <div class="cards-grid">
+          <!-- 9 cards (3 per row on desktop) -->
+          <div class="card card-visual">
+            <div class="card-top">
+              <div class="chip" aria-hidden="true"></div>
+              <div>
+                <div class="card-title">CyberHawks Platinum Debit</div>
+                <div class="muted-small">•••• 5213 • Daily limit ₹50,000</div>
+              </div>
+            </div>
+            <div class="card-actions">
+              <div class="muted-small">Expires 09/28</div>
+              <div><button class="btn" onclick="toggleCardLock(this)" type="button">Lock</button></div>
+            </div>
+          </div>
+
+          <div class="card card-visual">
+            <div class="card-top">
+              <div class="chip"></div>
+              <div>
+                <div class="card-title">CyberHawks Rewards Credit</div>
+                <div class="muted-small">•••• 9910 • Available ₹75,000</div>
+              </div>
+            </div>
+            <div class="card-actions">
+              <div class="muted-small">Expires 07/26</div>
+              <div><button class="btn" onclick="openCardSettings()" type="button">Manage</button></div>
+            </div>
+          </div>
+
+          <div class="card card-visual">
+            <div class="card-top">
+              <div class="chip"></div>
+              <div>
+                <div class="card-title">Virtual Card (Online)</div>
+                <div class="muted-small">•••• 3078 • Temporary CVV</div>
+              </div>
+            </div>
+<div class="muted-small">• Available ₹67,000</div>
+            <div class="card-actions">
+              <div class="muted-small">Expires 10/27</div>
+              <div><button class="btn" onclick="revealVirtualCard()" type="button">Show</button></div>
+            </div>
+          </div>
+
+          <div class="card card-visual">
+            <div class="card-top"><div class="chip"></div><div><div class="card-title">Travel Platinum Card</div><div class="muted-small">•••• 2244 • Rewards on travel</div></div></div>
+                        <div class="card-actions">
+              <div class="muted-small">Expires 05/29</div>
+              <div><button class="btn" onclick="openCardSettings()" type="button">Manage</button></div>
+            </div>
+          </div>
+
+          <div class="card card-visual">
+            <div class="card-top"><div class="chip"></div><div><div class="card-title">Business Debit</div><div class="muted-small">•••• 3345 • Daily limit ₹1,50,000</div></div></div>
+                       <div class="card-actions">
+              <div class="muted-small">Expires 06/30</div>
+              <div><button class="btn" onclick="toggleCardLock(this)" type="button">Unlock</button></div>
+            </div>
+          </div>
+
+          <div class="card card-visual">
+            <div class="card-top"><div class="chip"></div><div><div class="card-title">Student Rewards Card</div><div class="muted-small">•••• 4456 • 0% on campus</div></div></div>
+<div class="muted-small">• Limit ₹54,000</div><div class="card-actions">
+              <div class="muted-small">Expires 03/28</div>
+              <div><button class="btn" onclick="revealVirtualCard()" type="button">Show</button></div>
+            </div>
+          </div>
+
+          <div class="card card-visual">
+            <div class="card-top"><div class="chip"></div><div><div class="card-title">Gold Savings Card</div><div class="muted-small">•••• 5567 • Cashback</div></div></div>
+            <div class="card-actions">
+              <div class="muted-small">Expires 09/41</div>
+              <div><button class="btn" onclick="openCardSettings()" type="button">Manage</button></div>
+            </div>
+          </div>
+
+          <div class="card card-visual">
+            <div class="card-top"><div class="chip"></div><div><div class="card-title">Corporate Card</div><div class="muted-small">•••• 6678 • Expense tracking</div></div></div>
+            <div class="card-actions">
+              <div class="muted-small">Expires 07/35</div>
+              <div><button class="btn" onclick="revealVirtualCard()" type="button">Show</button></div>
+            </div>
+          </div>
+
+          <div class="card card-visual">
+            <div class="card-top"><div class="chip"></div><div><div class="card-title">Virtual Single-use</div><div class="muted-small">•••• 7789 • One-time CVV</div></div></div>
+            <div class="card-actions">
+              <div class="muted-small">Expires 06/32</div>
+              <div><button class="btn" onclick="toggleCardLock(this)" type="button">Try</button></div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <nav class="bank-nav">
-        <span id="userDisplay" class="bank-user-pill"></span>
-        <button id="logoutBtn" class="btn small ghost">Logout</button>
-      </nav>
-    </div>
-  </header>
+      <!-- PAYMENTS -->
+      <div id="payments" class="content-inner" style="display:none">
+        <div class="section-head">
+          <h2>Payments history</h2>
+          <p class="muted-text">Review your complete payment activity below. Use filters to refine results or download your statement as a CSV file.</p>
+        </div>
 
-  <main class="bank-main">
-    <aside class="bank-sidebar">
-      <button class="nav-btn active" id="overviewBtn">Accounts overview</button>
-      <button class="nav-btn" id="cardsBtn">Cards</button>
-      <button class="nav-btn" id="paymentsBtn">Payments history</button>
-      <button class="nav-btn danger" id="adminBtn">
-        Fraud &amp; Risk Console (admin)
-      </button>
-    </aside>
+        <div class="card">
+          <div class="tx-controls">
+            <input id="paymentsSearch" placeholder="Search payments" aria-label="Search payments" />
+            <select id="paymentsStatus" aria-label="Payments status">
+              <option value="all">All</option>
+              <option value="success" selected>Success</option>
+              <option value="pending">Pending</option>
+              <option value="failed">Failed</option>
+            </select>
+            <button id="exportBtn" class="btn ghost" type="button">Export CSV</button>
+          </div>
 
-    <section class="bank-content">
-      <div id="contentArea" class="content-inner">
-        <!-- Filled by dashboard.js -->
+          <div class="table-wrap">
+            <table class="tx-table" id="paymentsTable">
+              <thead><tr><th>Date</th><th>Details</th><th>Status</th><th>Amount</th><th>Reference</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+       
+
+      <!-- DEDICATED TRANSFER -->
+      <div id="transfer" class="content-inner" style="display:none">
+        <div class="section-head">
+          <h2>Transfer</h2>
+          <p class="muted-text">Transfer funds between accounts within this simulated banking system. 
+Use this module to test transaction flows, validate user actions, 
+and explore potential security weaknesses as part of the CTF challenge.</p>
+        </div>
+
+        <div class="card" style="max-width:920px">
+          <form id="transferFormMain" class="transfer-form" autocomplete="off">
+            <div class="row">
+              <select id="fromAccountMain" aria-label="From account main">
+                <option value="savings">Savings • 4821</option>
+                <option value="current">Current • 9304</option>
+              </select>
+              <input id="txAmountMain" type="number" min="1" placeholder="Amount (₹)" />
+            </div>
+
+            <input id="txToMain" placeholder="Beneficiary (Name / UPI ID)" />
+            <div class="recipient-list" id="recipientListMain"></div>
+
+            <div class="row">
+              <input id="noteMain" placeholder="Optional note" />
+              <button id="saveRecipientBtnMain" class="btn ghost" type="button">Save</button>
+            </div>
+
+            <div class="row actions">
+              <button type="submit" class="btn">Send</button>
+              <button type="button" class="btn ghost" id="scheduleBtnMain">Schedule</button>
+              <div id="txMsgMain" class="transfer-msg"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- FRAUD -->
+      <div id="fraud" class="content-inner" style="display:none">
+        <h2>Fraud & Risk Console</h2>
+        <p class="muted-text">Restricted to admin role for the lab. Your role is displayed in the header.</p>
+        <!-- make this box large / long and visually empty per request -->
+        <div class="card flag-box large-fraud" style="min-height:320px; display:flex; align-items:flex-start; padding:20px;">
+          <div style="width:100%">
+            <strong>Access denied:</strong> You are not an admin. Try tampering with the JWT role to <code>admin</code> (lab exercise).
+            <div style="margin-top:12px; color:#a7f3d0; opacity:0.8;">This area is intentionally large for auditing / admin console layout.<br><br><br><br><br><br><br>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <!-- FOOTER -->
+  <footer class="site-footer" role="contentinfo">
     <div class="container footer-inner">
-      <small>CyberHawks Online Banking – CTF lab only • Not a real financial institution</small>
+      <div class="footer-left">CyberHawks Online Banking - CTF lab only • Not a real financial institution</div>
       <div class="footer-links">
         <a href="https://linktr.ee/CyberHawksClub_GNITHYD" target="_blank" rel="noopener">CyberHawksClub</a>
-        <a href="https://www.linkedin.com/in/k-sai-nadh/" target="_blank" rel="noopener">MyLinkedIn</a>
+        <a href="https://www.linkedin.com/in/k-sai-nadh/" target="_blank" rel="noopener">MyLinkedin</a>
       </div>
     </div>
   </footer>
 
-  <script src="dashboard.js"></script>
+  <!-- Confirm modal -->
+  <div id="confirmModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="panel">
+      <h3 id="confirmTitle">Confirm transfer</h3>
+      <p id="confirmBody" class="muted-small">Please confirm</p>
+      <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+        <button class="btn ghost" id="cancelConfirm" type="button">Cancel</button>
+        <button class="btn" id="confirmTransfer" type="button">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Small JS — retains your demo logic and improves some small behaviors
+    function readDemoToken(){ try{ const raw=localStorage.getItem('id_token'); if(!raw) return null; const parts = raw.split('.'); return parts.length>1?JSON.parse(atob(parts[1])):null;}catch(e){return null;} }
+    function showUserHeader(){ const p=readDemoToken(); const pill=document.getElementById('userPill'); const welcome=document.getElementById('welcomeName'); if(!pill) return; if(p && p.username){ pill.textContent = p.username + ' • role: ' + (p.role||'customer'); if(welcome) welcome.textContent = p.username; } else { pill.textContent='Guest'; if(welcome) welcome.textContent='Guest'; } }
+
+    const sampleData = {
+      balances:{ savings:124500.80, current:36210.15, fd:9700.98 },
+      transactions:[
+        // kept set intentionally small and mixed (some Success, some Pending, some Failed)
+        {date:'2025-11-20', details:'Salary – CyberHawks (Payroll)', status:'Success', amount:55000},
+        {date:'2025-11-19', details:'UPI • Transfer • mom@upi', status:'Pending', amount:-2500},
+        {date:'2025-11-18', details:'Amazon • Home & Kitchen', status:'Success', amount:-7626},
+        {date:'2025-11-17', details:'Card charge • Unknown merchant', status:'Failed', amount:-2999},
+        {date:'2025-11-15', details:'UPI • office@upi (Reimbursement)', status:'Success', amount:15000},
+        {date:'2025-11-14', details:'Netflix • Subscription (Standard)', status:'Failed', amount:-649},
+        {date:'2025-11-12', details:'Refund • Online retailer', status:'Success', amount:799}
+      ],
+      monthlySpending:{ labels:['Jun','Jul','Aug','Sep','Oct','Nov'], expenses:[6400,4200,8800,7200,4800,6500], income:[32000,30000,35000,30000,32000,55000] },
+      recipients:[ 'mom@upi','office@upi','friend@upi' ]
+    };
+
+    function numberWithCommas(x){ return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+
+    function populateBalances(){ document.getElementById('balSavings').textContent = numberWithCommas(sampleData.balances.savings.toFixed(2)); document.getElementById('balCurrent').textContent = numberWithCommas(sampleData.balances.current.toFixed(2)); document.getElementById('balFD').textContent = numberWithCommas(sampleData.balances.fd.toFixed(2)); document.getElementById('availSavings') && (document.getElementById('availSavings').textContent = '₹ ' + numberWithCommas(Math.round(sampleData.balances.savings))); document.getElementById('savingsPercent') && (document.getElementById('savingsPercent').textContent = Math.min(100, Math.round((sampleData.balances.savings/200000)*100)) + '%'); }
+
+    function populateTxTable(filtered){ const tbody=document.querySelector('#txTable tbody'); tbody.innerHTML=''; let running=Math.round(sampleData.balances.savings + sampleData.balances.current); const list = filtered || sampleData.transactions; list.forEach(tx=>{ running += tx.amount; const tr=document.createElement('tr'); const statusClass = tx.status==='Success' ? 'status-success' : (tx.status==='Pending' ? 'status-pending' : 'status-failed'); tr.innerHTML = `<td>${tx.date}</td><td>${tx.details}</td><td><span class="status-pill ${statusClass}">${tx.status}</span></td><td>${tx.amount<0?'-':'+'} ₹ ${Math.abs(tx.amount).toLocaleString()}</td><td class="running-balance">₹ ${numberWithCommas(Math.round(running))}</td>`; tbody.appendChild(tr); }); document.getElementById('txCount').textContent = list.length; const pbody = document.querySelector('#paymentsTable tbody'); if(pbody) pbody.innerHTML = list.map(tx=> `<tr><td>${tx.date}</td><td>${tx.details}</td><td>${tx.status}</td><td>₹ ${Math.abs(tx.amount).toLocaleString()}</td><td>${Math.random().toString(36).slice(2,10).toUpperCase()}</td></tr>`).join(''); }
+
+    // kept additional rows function but left it commented out so it doesn't re-add lots of successes automatically
+    /* (function addExtraRows(){ const more=[ {date:'2025-11-19', details:'Flipkart • Online Purchase – Electronics & Accessories', status:'Success', amount:-6690}, {date:'2025-11-18', details:'Amazon • Purchase – Home & Kitchen', status:'Success', amount:-7626}, {date:'2025-11-17', details:'Zomato • Food delivery – Dinner order', status:'Success', amount:-5858}, {date:'2025-11-16', details:'Swiggy • Food delivery – Lunch combo', status:'Success', amount:-6494}, {date:'2025-11-15', details:'Axis Insurance • Policy renewal (Auto)', status:'Success', amount:-3156}, {date:'2025-11-14', details:'Rent • Monthly apartment rent - Nov', status:'Success', amount:-2990}, {date:'2025-11-13', details:'Gym Membership • Annual renewal (Pro)', status:'Success', amount:-4209} ]; sampleData.transactions = sampleData.transactions.concat(more); })(); */
+
+    function renderSpendingChart(){ const ctx=document.getElementById('spendingChart'); if(!ctx) return; const labels=sampleData.monthlySpending.labels; const expenses=sampleData.monthlySpending.expenses; const income=sampleData.monthlySpending.income; document.getElementById('totalOut').textContent = numberWithCommas(expenses.reduce((a,b)=>a+b,0)); document.getElementById('totalIn').textContent = numberWithCommas(income.reduce((a,b)=>a+b,0)); new Chart(ctx,{ type:'line', data:{ labels, datasets:[ { label:'Expenses', data:expenses, tension:0.35, borderColor:'#f43f5e', backgroundColor:'rgba(244,63,94,0.06)', pointRadius:3 }, { label:'Income', data:income, tension:0.35, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.06)', pointRadius:3 } ] }, options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#cfe8ff' } } }, scales:{ x:{ ticks:{ color:'#9ca3af' } }, y:{ ticks:{ color:'#9ca3af' } } } } }); }
+
+    function renderRecipients(){ const list= JSON.parse(localStorage.getItem('ch_recipients')||'null')||sampleData.recipients; const el=document.getElementById('recipientList'); if(el){ el.innerHTML=''; list.slice(0,8).forEach(r=>{ const b=document.createElement('div'); b.className='recipient-chip'; b.textContent=r; if(['mom@upi','office@upi','friend@upi'].includes(r)){ b.classList.add('recipient-send'); } b.onclick=()=>document.getElementById('txTo').value=r; el.appendChild(b); }); } const el2=document.getElementById('recipientListMain'); if(el2){ el2.innerHTML=''; list.slice(0,12).forEach(r=>{ const b=document.createElement('div'); b.className='recipient-chip'; b.textContent=r; if(['mom@upi','office@upi','friend@upi'].includes(r)){ b.classList.add('recipient-send'); } b.onclick=()=>document.getElementById('txToMain').value=r; el2.appendChild(b); }); } }
+
+    document.addEventListener('click', (e)=>{ if(e.target && e.target.id==='saveRecipientBtn'){ const val=document.getElementById('txTo').value.trim(); if(val){ const cur=JSON.parse(localStorage.getItem('ch_recipients')||'null')||sampleData.recipients; if(!cur.includes(val)) cur.unshift(val); localStorage.setItem('ch_recipients', JSON.stringify(cur.slice(0,12))); renderRecipients(); document.getElementById('txMsg').textContent='Saved'; setTimeout(()=>document.getElementById('txMsg').textContent='',1200); } } if(e.target && e.target.id==='saveRecipientBtnMain'){ const val=document.getElementById('txToMain').value.trim(); if(val){ const cur=JSON.parse(localStorage.getItem('ch_recipients')||'null')||sampleData.recipients; if(!cur.includes(val)) cur.unshift(val); localStorage.setItem('ch_recipients', JSON.stringify(cur.slice(0,12))); renderRecipients(); document.getElementById('txMsgMain').textContent='Saved'; setTimeout(()=>document.getElementById('txMsgMain').textContent='',1200); } } });
+
+    function initTransfer(){ const form=document.getElementById('transferForm'); if(!form) return; form.addEventListener('submit',(e)=>{ e.preventDefault(); const to=document.getElementById('txTo').value.trim()||'recipient'; const amt=Number(document.getElementById('txAmount').value)||0; const from=document.getElementById('fromAccount').value; const msg=document.getElementById('txMsg'); if(amt<=0){ msg.textContent='Enter valid amount'; return;} const avail = from==='savings'? sampleData.balances.savings : sampleData.balances.current; if(amt>avail){ msg.textContent='Insufficient funds'; return;} document.getElementById('confirmTitle').textContent = `Send ₹ ${numberWithCommas(amt)} to ${to}`; document.getElementById('confirmBody').textContent = `From: ${from==='savings' ? 'Savings • 4821' : 'Current • 9304'}`; document.getElementById('confirmModal').style.display='flex'; document.getElementById('cancelConfirm').onclick=()=>document.getElementById('confirmModal').style.display='none'; document.getElementById('confirmTransfer').onclick=()=>{ if(from==='savings') sampleData.balances.savings -= amt; else sampleData.balances.current -= amt; sampleData.transactions.unshift({date:new Date().toISOString().slice(0,10), details:`Transfer • ${to}`, status:'Success', amount:-amt}); populateBalances(); populateTxTable(); renderRecipients(); msg.textContent = `Sent ₹ ${numberWithCommas(amt)} to ${to}`; document.getElementById('confirmModal').style.display='none'; setTimeout(()=>msg.textContent='', 2500); }; }); }
+
+    function initTransferMain(){ const form=document.getElementById('transferFormMain'); if(!form) return; form.addEventListener('submit',(e)=>{ e.preventDefault(); const to=document.getElementById('txToMain').value.trim()||'recipient'; const amt=Number(document.getElementById('txAmountMain').value)||0; const from=document.getElementById('fromAccountMain').value; const msg=document.getElementById('txMsgMain'); if(amt<=0){ msg.textContent='Enter valid amount'; return;} const avail = from==='savings'? sampleData.balances.savings : sampleData.balances.current; if(amt>avail){ msg.textContent='Insufficient funds'; return;} if(!confirm(`Send ₹ ${numberWithCommas(amt)} to ${to}?`)) return; if(from==='savings') sampleData.balances.savings -= amt; else sampleData.balances.current -= amt; sampleData.transactions.unshift({date:new Date().toISOString().slice(0,10), details:`Transfer • ${to} (UPI)`, status:'Success', amount:-amt}); populateBalances(); populateTxTable(); renderRecipients(); msg.textContent = `Sent ₹ ${numberWithCommas(amt)} to ${to}`; setTimeout(()=>msg.textContent='',2400); }); }
+
+function initPaymentsControls(){
+
+      document.getElementById('txSearch').addEventListener('input', (e)=>{
+        const q = e.target.value.toLowerCase();
+        const filter = document.getElementById('txFilter').value;
+
+        const list = sampleData.transactions.filter(t =>
+          t.details.toLowerCase().includes(q) &&
+          (filter === 'all' || (filter === 'in' && t.amount > 0) || (filter === 'out' && t.amount < 0))
+        );
+
+        populateTxTable(list);
+      });
+
+      document.getElementById('txFilter').addEventListener('change', ()=>{
+        document.getElementById('txSearch').dispatchEvent(new Event('input'));
+      });
+
+      document.getElementById('paymentsSearch').addEventListener('input', (e)=>{
+        const q = e.target.value.toLowerCase();
+        const status = document.getElementById('paymentsStatus').value;
+
+        const list = sampleData.transactions.filter(t =>
+          t.details.toLowerCase().includes(q) &&
+          (status === 'all' || t.status.toLowerCase() === status)
+        );
+
+        const body = document.querySelector('#paymentsTable tbody');
+
+        body.innerHTML = list.map(tx=>{
+          const statusClass =
+            tx.status === 'Success'
+              ? 'status-success'
+              : tx.status === 'Pending'
+                ? 'status-pending'
+                : 'status-failed';
+
+          return `
+            <tr>
+              <td>${tx.date}</td>
+              <td>${tx.details}</td>
+              <td><span class="status-pill ${statusClass}">${tx.status}</span></td>
+              <td>₹ ${Math.abs(tx.amount).toLocaleString()}</td>
+              <td>${Math.random().toString(36).slice(2,10).toUpperCase()}</td>
+            </tr>`;
+        }).join('');
+      });
+
+      document.getElementById('paymentsStatus').addEventListener('change', ()=>{
+        document.getElementById('paymentsSearch').dispatchEvent(new Event('input'));
+      });
+
+      document.getElementById('exportBtn').addEventListener('click', ()=>{
+        const rows = sampleData.transactions.map(t=> [t.date, t.details, t.status, t.amount]);
+        const csv = rows.map(r=> r.map(c=> `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+
+        const blob = new Blob([csv], {type:'text/csv'});
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'payments.csv';
+        a.click();
+
+        URL.revokeObjectURL(url);
+      });
+
+      // trigger once so payments table reflects default filter on load
+      document.getElementById('paymentsSearch').dispatchEvent(new Event('input'));
+    }
+
+    function initNav(){
+      document.querySelectorAll('.nav-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          const section = btn.getAttribute('data-section');
+          document.querySelectorAll('.content-inner').forEach(el=> el.style.display='none');
+          const el=document.getElementById(section);
+          if(el) el.style.display='block';
+          window.scrollTo({top:0,behavior:'smooth'});
+        });
+      });
+
+      document.getElementById('quickTransferBtn').addEventListener('click', ()=>{
+        document.querySelectorAll('.content-inner').forEach(el=> el.style.display='none');
+        document.getElementById('transfer').style.display='block';
+        document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelector('.nav-btn[data-section="overview"]').classList.add('active');
+        setTimeout(()=>{ document.getElementById('txAmountMain')?.focus(); },150);
+      });
+
+      document.getElementById('openTransferTop').addEventListener('click', ()=>{
+        document.querySelectorAll('.content-inner').forEach(el=> el.style.display='none');
+        document.getElementById('transfer').style.display='block';
+      });
+    }
+
+    function toggleCardLock(btn){
+      if(!btn) return;
+      btn.textContent = (btn.textContent==='Lock' || btn.textContent==='Unlock')
+        ? (btn.textContent==='Lock' ? 'Unlock' : 'Lock')
+        : btn.textContent;
+    }
+    function openCardSettings(){ alert('Card settings (demo)'); }
+    function revealVirtualCard(){ alert('Virtual card details (demo)'); }
+
+    document.getElementById('logoutBtn')?.addEventListener('click', ()=>{ localStorage.removeItem('id_token'); window.location.href='index.html'; });
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+      showUserHeader();
+      populateBalances();
+      populateTxTable();
+      renderSpendingChart();
+      renderRecipients();
+      initNav();
+      initTransfer();
+      initTransferMain();
+      initPaymentsControls();
+      // ensure payments table is rendered with the applied filter after init
+      document.getElementById('paymentsSearch')?.dispatchEvent(new Event('input'));
+    });
+    </script>
 </body>
 </html>
